@@ -37,16 +37,16 @@ from cylearn.Data import Dataset, Loader
 ```
 
 ```Python
-x = Dataset([1, 2, 3, 4, 5]).map(lambda i: i ** 2)
+x = Dataset(np.arange(5)).map(lambda i: i ** 2)
 for _ in x: print(_)
 ```
 
 ```
+0
 1
 4
 9
 16
-25
 ```
 
 ```Python
@@ -55,7 +55,7 @@ for _ in loader_x: print(_)
 ```
 
 ```
-[1, 4]
-[9, 16]
-[25]
+[0, 1]
+[4, 9]
+[16]
 ```
