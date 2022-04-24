@@ -18,7 +18,7 @@ Or just copy the files you need to your project, but don't forget the LICENSE.
 
 ## Submodules
 
-There are only one submodule so far.
+There is only one submodule so far.
 
 + Data
   + Dataset
