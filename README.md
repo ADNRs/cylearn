@@ -146,7 +146,6 @@ Assume the memory can only store two images once at a time because these images 
 
 ```Python
 import os
-import numpy
 from cylearn.Data import Dataset, get_loader
 ```
 
