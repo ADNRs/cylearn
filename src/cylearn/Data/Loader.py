@@ -36,6 +36,20 @@ class _Cache:
         return self.count == len(self)
 
 
+class _Seed:
+    '''
+    A temporary solution for random state synchronization of `Loader`.
+    '''
+
+    def __init__(self, seed):
+        self.seed = seed
+
+    def __call__(self):
+        seed = self.seed
+        self.seed = (1103515245*self.seed + 114514) % 2147483647
+        return seed
+
+
 class Loader:
     '''
     Make a Dataset instance iterable on the batch level.
@@ -171,6 +185,8 @@ class Loader:
         self._cache = _Cache(len(dataset)) \
             if enable_cache and self.dataset._mapper is not None else None
 
+        self._seed = None
+
     def __len__(self):
         num_batch = len(self.dataset) // self.batch_size
         if not self.drop_last and len(self.dataset) % self.batch_size:
@@ -185,6 +201,8 @@ class Loader:
 
         indices = list(range(len(self.dataset)))
         if self.shuffle:
+            if self._seed is not None:
+                random.seed(self._seed())
             for i in range(len(self.dataset) - 1, 0, -1):
                 j = random.randint(0, i)
                 indices[i], indices[j] = indices[j], indices[i]
@@ -253,6 +271,9 @@ class Loader:
                 self._cache[i] = deepcopy(data)
 
         return [self._cache[i] for i in batch_indices]
+
+    def _set_seed(self, seed):
+        self._seed = _Seed(seed)
 
 
 def get_loader(dataset1, dataset2=None, batch_size=None, **kwargs):
@@ -342,10 +363,14 @@ def get_loader(dataset1, dataset2=None, batch_size=None, **kwargs):
     if isinstance(dataset2, int) and batch_size is None:
         dataset2, batch_size = batch_size, dataset2
 
+    loader1 = Loader(dataset1, batch_size, **kwargs)
+    loader1._set_seed(hash(loader1))
+
     if dataset2 is None:
-        return Loader(dataset1, batch_size, **kwargs)
+        return loader1
     else:
         assert len(dataset1) == len(dataset2), \
             'inconsistent length between `dataset1` and `dataset2`'
-        return Loader(dataset1, batch_size, **kwargs), \
-            Loader(dataset2, batch_size, **kwargs)
+        loader2 = Loader(dataset2, batch_size, **kwargs)
+        loader2._set_seed(hash(loader1))
+        return loader1, loader2
