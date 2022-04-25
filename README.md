@@ -159,7 +159,7 @@ for i in range(len(labels)): print(labels.get(i), type(labels[i]))
 ```
 
 ```Python
-# Use two workers to read load data.
+# Use two workers to read data.
 # An error will occur if 'multiprocess' is not installed.
 # Fix it by installing 'multiprocess' or not passing `parallel`.
 images_loader, labels_loader = get_loader(images, labels, batch_size=2, parallel=2)
