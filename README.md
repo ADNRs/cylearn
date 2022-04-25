@@ -32,37 +32,97 @@ There is only one submodule so far.
 
 `cylearn.Data` provides two classes `Dataset` and `Loader` and several functions `shuffle()`, `split()`, and `get_loader()`.
 
-We first use some examples for a quick start before going into details. These examples are presented in the jupyter style.
+We first use some examples for a quick start before going into details. These examples are presented in the jupyter-like style.
 
 ### Example 1
 
+This example is about the basic usage of `Dataset`, `shuffle()`, `split()`, `Loader`, and `get_loader()`.
+
 ```Python
 import numpy as np
-from cylearn.Data import Dataset, Loader
+from cylearn.Data import Dataset, shuffle, split, Loader, get_loader
 ```
 
 ```Python
-x = Dataset(np.arange(5)).map(lambda i: i ** 2)
-for _ in x: print(_)
+# Dataset takes a list-like object when instantiating.
+# A Dataset object is immutable, as X doesn't change after mapping.
+X = Dataset(np.arange(11, 21))
+y = X.map(lambda i: i + 10)
+for _ in zip(X, y): print(*_)
 ```
 
 ```
-0
-1
-4
-9
-16
+11 21
+12 22
+13 23
+14 24
+15 25
+16 26
+17 27
+18 28
+19 29
+20 30
 ```
 
 ```Python
-loader_x = Loader(x, batch_size=2, shuffle=False)
-for _ in loader_x: print(_)
+X, y = shuffle(X, y)
+for _ in zip(X, y): print(*_)
 ```
 
 ```
-[0, 1]
-[4, 9]
-[16]
+19 29
+14 24
+18 28
+17 27
+13 23
+20 30
+11 21
+15 25
+12 22
+16 26
+```
+
+```Python
+# Split X and y.
+train_X, test_X = split(X, 0.7)
+train_y, test_y = split(y, 0.7)
+for _ in zip(train_X, train_y): print('Train:', _)
+for _ in zip(test_X, test_y): print('Test: ', _)
+```
+
+```
+Train: (19, 29)
+Train: (14, 24)
+Train: (18, 28)
+Train: (17, 27)
+Train: (13, 23)
+Train: (20, 30)
+Train: (11, 21)
+Test:  (15, 25)
+Test:  (12, 22)
+Test:  (16, 26)
+```
+
+```Python
+train_X_loader, train_y_loader = get_loader(train_X, train_y, batch_size=2)
+for _ in zip(train_X_loader, train_y_loader): print(_)
+```
+
+```
+([13, 18], [23, 28])
+([19, 17], [29, 27])
+([14, 11], [24, 21])
+([20], [30])
+```
+
+```Python
+test_X_loader, test_y_loader = get_loader(test_X, test_y, batch_size=2, shuffle=False)
+for _ in zip(test_X_loader, test_y_loader): print(_)
+```
+
+```
+([15, 12], [25, 22])
+([16], [26])
 ```
 
 ### Example 2
@@ -108,7 +168,7 @@ for i, l in zip(images, labels): print(i, l)
 ```Python
 # Define functions for reading images and labels.
 # Import statements must be inside a function to make multiprocessing work.
-# This makes sure the name of the imported module is inside the local symbol table.
+# This makes sure the name of the imported module exists in the local symbol table.
 def read_image(path):
     '''
     Returns a numpy array.
@@ -157,7 +217,7 @@ for i in range(len(labels)): print(labels.get(i), type(labels[i]))
 ```Python
 # Use two workers to read data.
 # An error will occur if 'multiprocess' is not installed.
-# Fix it by installing 'multiprocess' or not passing `parallel`.
+# Fix it by installing 'multiprocess' or not passing `parallel` into get_loader().
 images_loader, labels_loader = get_loader(images, labels, batch_size=2, parallel=2)
 for X, y in zip(images_loader, labels_loader): print(len(X), len(y))
 ```
