@@ -2,6 +2,10 @@
 
 cylearn contains a collection of tools for machine learning. The 'cy' prefix is just the abbreviation of my given name.
 
+## Warning
+
+This package is still under development, use with caution.
+
 ## Installation
 
 You can install cylearn through PyPI:
@@ -23,6 +27,7 @@ There is only one submodule so far.
 + `Data`
   + `Dataset`
   + `Loader`
+
 ## Data loading with `cylearn.Data`
 
 `cylearn.Data` provides two classes `Dataset` and `Loader` and several functions `shuffle()`, `split()`, and `get_loader()`.
