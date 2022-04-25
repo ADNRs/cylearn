@@ -6,10 +6,6 @@ cylearn contains a collection of tools for machine learning. The 'cy' prefix is 
 
 This package is still under development, use with caution.
 
-### Known issue
-
-If `get_loader(dataset1, dataset2)` is called, it will return two loaders, however, the random states of these two loaders are not identical. This is not in line with our expectations when using them to train a model. This will be fixed in the next patch (0.1.4).
-
 ## Installation
 
 You can install cylearn through PyPI:
