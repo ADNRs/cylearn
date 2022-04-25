@@ -121,26 +121,6 @@ def read_label(path):
 ```
 
 ```Python
-# Define functions for reading images and labels.
-# Import statements must be inside a function to make multiprocessing work.
-# This makes sure the name of the imported module is inside the local symbol table.
-def read_image(path):
-    '''
-    Returns a numpy array.
-    '''
-    import numpy as np
-    from PIL import Image
-    return np.asarray(Image.open(path))
-
-def read_label(path):
-    '''
-    Returns an integer.
-    '''
-    with open(path, 'r') as f:
-        return int(f.readline())
-```
-
-```Python
 # The original data, which is a list of strings here, won't change after lazy_map() is called.
 # If using map(), a list of strings will be transformed into a list of numpy arrays or integers.
 # This is the key to solve the memory issue.
