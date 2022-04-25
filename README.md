@@ -86,7 +86,7 @@ for _ in loader_x: print(_)
 
 The above is the structure of an imaginary folder, where x.png is an image and x.txt stores an integer which is the label of x.png.
 
-Assume the memory can only store two images once at a time because these images are too large. We now demonstrates how to make batches for these images and labels with `Dataset` and `Loader`.
+Assume the memory can only store two images once at a time because these images are too large. We now demonstrate how to make batches for these images and labels with `Dataset` and `Loader`.
 
 ```Python
 import os
