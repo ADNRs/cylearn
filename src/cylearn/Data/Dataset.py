@@ -49,12 +49,11 @@ class Dataset:
             `data` is not a list-like object.
         '''
         try:
-            iter(data)
-            len(data)
+            data = list(data)
         except TypeError:
             raise TypeError('`data` must be a list-like object')
 
-        self._data = deepcopy(list(data))
+        self._data = deepcopy(data)
         self._mapper = None
 
     def __len__(self):
