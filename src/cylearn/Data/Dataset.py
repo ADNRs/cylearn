@@ -61,7 +61,10 @@ class Dataset:
 
     def __getitem__(self, key):
         if not isinstance(key, (int, slice)):
-            raise TypeError('`key` must be int or slice')
+            try:
+                key = int(key)
+            except TypeError:
+                raise TypeError('`key` must be int or slice')
 
         if self._mapper is None:
             return self.get(key)
@@ -331,8 +334,9 @@ def split(dataset, ratio):
     Parameters
     ----------
     dataset : Dataset
-    ratio : float
-        `ratio` should lies in (0, 1).
+    ratio : float or int
+        `ratio` should lies in (0, 1) if it is a float.
+        `ratio` should lies in (0, `len(dataset)`) if it is an integer.
 
     Returns
     -------
@@ -345,19 +349,24 @@ def split(dataset, ratio):
     ------
     TypeError
         `dataset` is not a Dataset instance.
-        `ratio` is not a float.
+        `ratio` is not a float or integer.
     ValueError
         `ratio` is greater than 1 or less than 0.
 
     '''
     if not isinstance(dataset, Dataset):
         raise TypeError('type of `dataset` must be Dataset')
-    if not isinstance(ratio, float):
-        raise TypeError('type of `ratio` must be float')
-    if 0 >= ratio or ratio >= 1:
-        raise ValueError('`ratio` should lies in (0, 1)')
+    if not isinstance(ratio, (int, float)):
+        raise TypeError('type of `ratio` must be float or int')
+    if type(ratio) == float and (0 >= ratio or ratio >= 1):
+        raise ValueError('`ratio` is a float but not lies in (0, 1)')
+    if type(ratio) == int and (0 >= ratio or ratio >= len(dataset)):
+        raise ValueError('`ratio` is an int but not lies in (0, len(dataset))')
 
-    mid = math.ceil(ratio * len(dataset))
+    if isinstance(ratio, int):
+        mid = ratio
+    elif isinstance(ratio, float):
+        mid = math.ceil(ratio * len(dataset))
     dataset1 = type(dataset)(dataset._data[:mid])
     dataset2 = type(dataset)(dataset._data[mid:])
     dataset1._mapper = dataset._mapper
