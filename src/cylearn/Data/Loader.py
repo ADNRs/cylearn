@@ -1,5 +1,5 @@
-import random
 from copy import deepcopy
+import random
 from .Dataset import Dataset
 
 
@@ -80,13 +80,12 @@ class Loader:
     drop_last : bool
     prefetch : int
     parallel : int
-    persistent : bool
 
     '''
 
     def __init__(self, dataset, batch_size, *,
                  shuffle=True, drop_last=False, prefetch=0,
-                 parallel=1, persistent=True, enable_cache=False):
+                 parallel=1, enable_cache=False):
         '''
         Constructor.
 
@@ -108,10 +107,6 @@ class Loader:
             Keyword only.
             The number of workers. `parallel` should be greater than or
             equal to 1.
-        persistent : bool, default=True
-            Keyword only.
-            If True, workers will not be closed after finishing their
-            jobs.
         enable_cache : bool, default=False
             Keyword only.
             Use with caution, out of memory may happen.
@@ -129,7 +124,6 @@ class Loader:
             `drop_last` is not a bool.
             `prefetch` is not an integer.
             `parallel` is not an integer.
-            `persistent` is not a bool.
             `enable_cache` is not a bool.
         ValueError
             `parallel` is less than 1.
@@ -150,8 +144,6 @@ class Loader:
             raise TypeError('type of `prefetch` must be int')
         if not isinstance(parallel, int):
             raise TypeError('type of `parallel` must be int')
-        if not isinstance(persistent, bool):
-            raise TypeError('type of `persistent` must be bool')
         if not isinstance(enable_cache, bool):
             raise TypeError('type of `enable_cache` must be bool')
         if parallel < 1:
@@ -176,7 +168,6 @@ class Loader:
         self.shuffle = shuffle
         self.drop_last = drop_last
         self.prefetch = prefetch
-        self.persistent = persistent
 
         # no need to create workers when all data is in memory
         self.parallel = parallel if self.dataset._mapper is not None else 1
@@ -194,7 +185,7 @@ class Loader:
         return num_batch
 
     def __iter__(self):
-        if self.persistent and self.parallel > 1:
+        if self.parallel > 1:
             self._pool = multiprocess.Pool(self.parallel)
         else:
             self._pool = None
@@ -253,13 +244,7 @@ class Loader:
             if self.dataset._mapper is None:
                 return data
             else:
-                if self.persistent:
-                    return self._pool.map(self.dataset._mapper, data)
-                else:
-                    self._pool = multiprocess.Pool(parallel)
-                    data = self._pool.map(self.dataset._mapper, data)
-                    self._pool.close()
-                    return data
+                return self._pool.map(self.dataset._mapper, data)
 
     def _get_batch_with_cache(self, batch_indices):
         not_in_cache_indices = \
